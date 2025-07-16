@@ -17,6 +17,8 @@ on:
 jobs:
   tag:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
     - uses: actions/checkout@v4
       with:
@@ -30,3 +32,9 @@ jobs:
       run: git tag -f ${{ github.event.inputs.main_version }} ${{ github.event.inputs.target }}
     - name: Push new tag
       run: git push origin ${{ github.event.inputs.main_version }} --force
+    - name: Create GitHub release
+      run: |
+        gh release create ${{ github.event.inputs.target }} \
+        --title "Create Pull Request ${{ github.event.inputs.target }}" --generate-notes
+      env:
+        GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
