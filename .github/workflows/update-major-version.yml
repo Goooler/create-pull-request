@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        token: ${{ secrets.ACTIONS_BOT_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         fetch-depth: 0
     - name: Git config
       run: |
@@ -37,4 +37,4 @@ jobs:
         gh release create ${{ github.event.inputs.target }} \
         --title "Create Pull Request ${{ github.event.inputs.target }}" --generate-notes
       env:
-        GITHUB_TOKEN: ${{ secrets.ACTIONS_BOT_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
