@@ -5,9 +5,47 @@ import {
   WorkingBaseType
 } from './create-or-update-branch'
 import {GitHubHelper} from './github-helper'
-import {GitCommandManager} from './git-command-manager'
+import {GitCommandManager, Commit} from './git-command-manager'
 import {GitConfigHelper} from './git-config-helper'
 import * as utils from './utils'
+
+export const DEFAULT_TITLE = 'Changes by create-pull-request action'
+export const DEFAULT_BODY =
+  'Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action'
+
+export function resolveTitleAndBody(
+  inputs: Pick<Inputs, 'title' | 'body' | 'bodyPath'>,
+  branchCommits: Commit[]
+): {title: string; body: string} {
+  let title = inputs.title
+  let body = inputs.body
+
+  if (!title) {
+    if (branchCommits.length === 1 && branchCommits[0].subject) {
+      title = branchCommits[0].subject
+    } else {
+      title = DEFAULT_TITLE
+    }
+  }
+
+  if (!body && !inputs.bodyPath) {
+    if (branchCommits.length === 1) {
+      body = branchCommits[0].body
+    } else {
+      body = DEFAULT_BODY
+    }
+  }
+
+  // 65536 characters is the maximum allowed for the pull request body.
+  if (body.length > 65536) {
+    core.warning(
+      `Pull request body is too long. Truncating to 65536 characters.`
+    )
+    body = body.substring(0, 65536)
+  }
+
+  return {title, body}
+}
 
 export interface Inputs {
   token: string
@@ -247,6 +285,9 @@ export async function createPullRequest(inputs: Inputs): Promise<void> {
 
     if (result.hasDiffWithBase) {
       core.startGroup('Create or update the pull request')
+      const {title, body} = resolveTitleAndBody(inputs, result.branchCommits)
+      inputs.title = title
+      inputs.body = body
       const pull = await ghPull.createOrUpdatePullRequest(
         inputs,
         baseRemote.repository,

@@ -386,6 +386,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DEFAULT_BODY = exports.DEFAULT_TITLE = void 0;
+exports.resolveTitleAndBody = resolveTitleAndBody;
 exports.createPullRequest = createPullRequest;
 const core = __importStar(__nccwpck_require__(7484));
 const create_or_update_branch_1 = __nccwpck_require__(6551);
@@ -393,6 +395,34 @@ const github_helper_1 = __nccwpck_require__(2522);
 const git_command_manager_1 = __nccwpck_require__(4158);
 const git_config_helper_1 = __nccwpck_require__(9640);
 const utils = __importStar(__nccwpck_require__(9277));
+exports.DEFAULT_TITLE = 'Changes by create-pull-request action';
+exports.DEFAULT_BODY = 'Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action';
+function resolveTitleAndBody(inputs, branchCommits) {
+    let title = inputs.title;
+    let body = inputs.body;
+    if (!title) {
+        if (branchCommits.length === 1 && branchCommits[0].subject) {
+            title = branchCommits[0].subject;
+        }
+        else {
+            title = exports.DEFAULT_TITLE;
+        }
+    }
+    if (!body && !inputs.bodyPath) {
+        if (branchCommits.length === 1) {
+            body = branchCommits[0].body;
+        }
+        else {
+            body = exports.DEFAULT_BODY;
+        }
+    }
+    // 65536 characters is the maximum allowed for the pull request body.
+    if (body.length > 65536) {
+        core.warning(`Pull request body is too long. Truncating to 65536 characters.`);
+        body = body.substring(0, 65536);
+    }
+    return { title, body };
+}
 function createPullRequest(inputs) {
     return __awaiter(this, void 0, void 0, function* () {
         let gitConfigHelper, git;
@@ -543,6 +573,9 @@ function createPullRequest(inputs) {
             }
             if (result.hasDiffWithBase) {
                 core.startGroup('Create or update the pull request');
+                const { title, body } = resolveTitleAndBody(inputs, result.branchCommits);
+                inputs.title = title;
+                inputs.body = body;
                 const pull = yield ghPull.createOrUpdatePullRequest(inputs, baseRemote.repository, branchRepository);
                 outputs.set('pull-request-number', pull.number.toString());
                 outputs.set('pull-request-url', pull.html_url);

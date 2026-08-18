@@ -64,8 +64,8 @@ All inputs are **optional**. If not set, sensible defaults will be used.
 | `base` | Sets the pull request base branch. | Defaults to the branch checked out in the workflow. |
 | `push-to-fork` | A fork of the checked-out parent repository to which the pull request branch will be pushed. e.g. `owner/repo-fork`. The pull request will be created to merge the fork's branch into the parent's base. See [push pull request branches to a fork](docs/concepts-guidelines.md#push-pull-request-branches-to-a-fork) for details. | |
 | `sign-commits` | Sign commits as `github-actions[bot]` when using `GITHUB_TOKEN`, or your own bot when using [GitHub App tokens](docs/concepts-guidelines.md#authenticating-with-github-app-generated-tokens). See [commit signing](docs/concepts-guidelines.md#commit-signature-verification-for-bots) for details.  | `false` |
-| `title` | The title of the pull request. | `Changes by create-pull-request action` |
-| `body` | The body of the pull request. | `Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action` |
+| `title` | The title of the pull request. | The commit subject for a single commit, or `Changes by create-pull-request action` for multiple commits. |
+| `body` | The body of the pull request. | The commit description for a single commit, or `Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action` for multiple commits. |
 | `body-path` | The path to a file containing the pull request body. Takes precedence over `body`. | |
 | `labels` | A comma or newline-separated list of labels. | |
 | `assignees` | A comma or newline-separated list of assignees (GitHub usernames). | |

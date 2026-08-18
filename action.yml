@@ -55,11 +55,13 @@ inputs:
     description: 'Sign commits as `github-actions[bot]` when using `GITHUB_TOKEN`, or your own bot when using GitHub App tokens.'
     default: false
   title:
-    description: 'The title of the pull request.'
-    default: 'Changes by create-pull-request action'
+    description: >
+      The title of the pull request.
+      Defaults to the commit subject for a single commit, or a default message for multiple commits.
   body:
-    description: 'The body of the pull request.'
-    default: 'Automated changes by [create-pull-request](https://github.com/peter-evans/create-pull-request) GitHub action'
+    description: >
+      The body of the pull request.
+      Defaults to the commit description for a single commit, or a default message for multiple commits.
   body-path:
     description: 'The path to a file containing the pull request body. Takes precedence over `body`.'
   labels:
